@@ -196,7 +196,7 @@ function replacerefs() {
   echo "Done"
 }
 
-function gollyghost() {
+function gollyghost43() {
   cd "/home/pi/srfoverlays/Sinden_BB_screenratio-main/GGBT"
   colourecho $_cQUERY "Would you like to remove the 16:9 scoreboard form Golly Ghost and Bubble Trouble, and apply calibrations for these games suited to a 4:3 display? (y/n)"
   read -N1 yn
@@ -212,6 +212,19 @@ function gollyghost() {
       echo " : Skip"
     ;;
   esac
+  echo "Cleaning up...."
+  cd /home/pi
+  rm -rf /home/pi/srfoverlays
+}
+
+
+function gollyghost169() {
+  echo "Repairing Bubble Trouble and Golly Ghost.."
+  cd "/home/pi/srfoverlays/Sinden_BB_screenratio-main/GGBT"
+  cp -v gollygho.cfg.169 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/cfg/gollygho.cfg
+  cp -v nvram.gg169 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/nvram/gollygho/nvram
+  cp -v bubbletr.cfg.169 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/cfg/bubbletr.cfg
+  cp -v nvram.bt169 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/nvram/bubbletr/nvram
   echo "Cleaning up...."
   cd /home/pi
   rm -rf /home/pi/srfoverlays
@@ -236,13 +249,15 @@ function main() {
             echo " : Replace"
             displaymodes2
             dloverlays
-            gollyghost 
+            gollyghost43 
             replacerefs
           ;;
           2 )
             echo " : Restore"
             displaymodes2
             restoreOG
+            dloverlays
+            gollyghost169
           ;;
           * )
             echo " : Cancelled"
