@@ -3,7 +3,7 @@
 <mameconfig version="10">
     <system name="gollygho">
         <video>
-            <target index="0" view="16:9_Scoreboard" />
+            <target index="0" view="16:9_Scoreboard" zoom="0"/>
         </video>
         <crosshairs>
             <crosshair player="0" mode="0" />
