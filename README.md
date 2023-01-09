@@ -1,0 +1,39 @@
+# Aspect Ratio Adaptation Utility for Sinden BareBones
+Script for users of the BareBones (9) image to quickly and easily adapt the system for use on 4:3 or 5:4 displays.
+
+## Reason
+The Barebones image was developed with the majority of home users in mind. As the vast majority of modern TV sets are of the 16:9 aspect ratio this is what we expect most users to be using their Sinden lightguns with.
+However, there are still those who would like to use the BareBones image on either traditional TV sets or monitors bult into reproduction arcade cabinets that are in the 4:3 or even 5:4 ratio (Arcade1Up, what were you thinking!?).
+It is for these users that this script has been written.  Converting BareBones from 16:9 is no small undertaking if done manually due to the fact that most games have unique bezel overlays that would need to be replaced.
+
+## How to use
+Always make a backup of your image before running a utiliy such as this one.  You do so at our own risk.  It is not possible to account for thy myriad changes and personalisations that users can make to their systems so please take precautions before you do so to ensure that you can revert back if the outcome is not to your satisfaction. 
+
+If running from the Pi itself with a connected keyboard, press `F4` to exit EmulationStation and reach the command line.
+Or you can connect to your Pi via SSH using a reliable utility such as PuTTY.
+From the command line, type the following:
+```
+cd /home/pi/
+wget https://github.com/Widge-5/Sinden_BB_screenratio/raw/main/bb_screenratio.sh
+chmod +x bb_screenratio.sh
+sudo ./bb_screenratio.sh
+```
+This will download the script to your `/home/pi` folder and make it executable. The last line executes the script.
+
+When you run the script you will be presented with a few questions that can be answered by pressing a key.
+In most cases, pressing a key that is not a valid option will terminate the script.
+It will only take a minute or two to complete the whole process, then you should reboot your Pi for the changes to take affect.
+
+## What to expect
+- Your Pi will be configured to display natively with the aspect ratio of your choice - this means that the terminal and EmulationStation itself will not appear distorted/stretched if you have selected the correct ratio.
+- RetroArch will have been given blanket viewport settings assuming that all games are 4:3 ratio across the board, the vast majority are. The viewport settings have been defined so the game picture fits neatly within the border without obstruction.
+- If you are using a 5:4 display, you will see a little empty space at the top and bottom of the screen, this is becasue 4:3 is wider than 5:4. But if that is a concern for you and you prefer to stretch and fill, you are given the option to do so in the script.
+- Tic80 is a system for which its games were made in the 16:9 aspect ratio. Also Razzmatazz and Sky Raider arcade games are vertical games in the 3:4 ratio. No compensation has been made for these so they will appear distorted and fill the screen ina  4:3 ratio.
+- Speaking of Sky Raider, that's a game who's bezel provided extra dressing to improve the look of the game.  A consequence of the removing the bezel is that the games basic graphics will be all you get.
+- Golly Ghost and Bubble Trouble utilised the bezel area on 16:9 displays to show the dynamic scoreboard. An option has been included in the script to remove the scoreboard and calibrate the guns for the new ratio if you so wish.
+
+## Restoring BareBones back to its original 16:9 state with bezels.
+It's possible that you may want to migrate the pi to a new 16:9 display at some time in the future.
+In most cases the script can be run again to restore the image back to its original state ny choosing the option for 16:9 displays and then choosing to replace the configs with those from the BB9 github repo.
+The script will then replace the files previously changed with those from the github repo.  Be mindful that if you have made some other changes or personalisations they may or may not be affected by the restoration.  The script will restore all files in the `/opt/` that have a `.cfg` extension (and only these) as many of these are the files that would have been changed by the first alteration process.
+
