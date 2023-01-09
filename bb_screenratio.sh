@@ -198,7 +198,7 @@ function replacerefs() {
 
 function gollyghost43() {
   cd "/home/pi/srfoverlays/Sinden_BB_screenratio-main/GGBT"
-  colourecho $_cQUERY "Would you like to remove the 16:9 scoreboard form Golly Ghost and Bubble Trouble, and apply calibrations for these games suited to a 4:3 display? (y/n)"
+  colourecho $_cQUERY "Would you like to remove the 16:9 scoreboard from Golly Ghost and Bubble Trouble, and apply calibrations for these games suited to a 4:3 display? (y/n)"
   read -N1 yn
   case $yn in
     y|Y )
@@ -242,7 +242,7 @@ function main() {
     read -N1 yn
     case $yn in
       y|Y )
-        echo "OK..."
+        echo " : OK..."
         displaymodes
 	case $restorechoice in
 	  1 )
@@ -266,7 +266,7 @@ function main() {
         esac
       ;;
       * )
-        echo "Cancelled"
+        echo " : Cancelled"
         exit
       ;;
     esac
