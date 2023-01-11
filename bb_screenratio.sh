@@ -3,7 +3,7 @@
 ######################################################################################################
 ##
 ##  BB9 aspect ratio conversion - by Widge
-##  Version 1.
+##  Version 1.01
 ##  January 2023
 ##
 ##  # TV modes #
@@ -49,19 +49,31 @@ function colourecho(){
   echo -e "${_col}${2}${_nc}"
 }
 
-function dloverlays() {
-  rm -rf /home/pi/srfoverlays
-  mkdir /home/pi/srfoverlays
-  cd /home/pi/srfoverlays
-  echo "Downloading new overlays..."
-  wget --timeout 15 --no-http-keep-alive --no-cache --no-cookies "https://github.com/Widge-5/Sinden_BB_screenratio/archive/refs/heads/main.zip"
+function downloader() {
+  rm -rf $2
+  mkdir $2
+  cd $2
+  echo "Downloading "$1"..."
+  wget --timeout 15 --no-http-keep-alive --no-cache --no-cookies $3
   wait
-  echo "Extracting new overlays..."
+  echo "Extracting "$1"..."
   unzip -q main.zip
+}
 
+function tidyup(){
+  echo "Cleaning up...."
+  cd /home/pi
+  rm -rf $1
+  echo "Done."
+}
+
+
+function dloverlays() {
+  downloader "new overlays" "/home/pi/srfoverlays" "https://github.com/Widge-5/Sinden_BB_screenratio/archive/refs/heads/main.zip"
   echo "Moving new overlays to location..."
   cd "/home/pi/srfoverlays/Sinden_BB_screenratio-main/overlay"
   cp *.* /opt/retropie/configs/all/retroarch/overlay
+  cd /home/pi
 }
 
 
@@ -83,6 +95,7 @@ function displaymodes () {
         displaymode="4"
 	newoverlay=$overlay169
 	viewportX="173"; viewportY="10"; viewportW="933"; viewportH="700"
+	newcfgfolder="/home/pi/srfoverlays/Sinden_BB_screenratio-main/16x9"
 	colourecho $_cQUERY "You have chosen the default Barebones aspect ratio of 16:9. Would you like to..."
         colourecho $_cOPTIONS "[1] Just run the local script that strips the bezels and applies global viewport settings for a 16:9 display;"
 	colourecho $_cOPTIONS "[2] Restore the default BareBones config files that were previously stripped out by this script;"
@@ -96,6 +109,7 @@ function displaymodes () {
         displaymode="16"
 	newoverlay=$overlay43
 	viewportX="9"; viewportY="9"; viewportW="1006"; viewportH="750"
+	newcfgfolder="/home/pi/srfoverlays/Sinden_BB_screenratio-main/4x3"
       ;;
       3 )
         echo " : 5:4"
@@ -105,6 +119,7 @@ function displaymodes () {
 	newoverlay=$overlay54
 	viewportX="12"; viewportY="41"; viewportW="1256"; viewportH="942"
 	                stretchY="12";                    stretchH="1000"
+	newcfgfolder="/home/pi/srfoverlays/Sinden_BB_screenratio-main/5x4"
         colourecho $_cQUERY "Almost all of the games available are made with the 4:3 aspect ratio in mind."
         colourecho $_cQUERY "The display you have selected has a slightly narrower (taller) aspect ratio."
         colourecho $_cQUERY "Would you like to:"
@@ -134,6 +149,7 @@ function displaymodes () {
     esac
 }
 
+
 function displaymodes2(){
     if /opt/vc/bin/tvservice -m $displaygroupname | grep -q "mode "$displaymode ; then 
       echo "Display mode supported";
@@ -146,31 +162,126 @@ function displaymodes2(){
     fi    
 }
 
-function restoreOGbase(){
-        rm -rf /home/pi/cfgrestore
-        mkdir /home/pi/cfgrestore
-	cd /home/pi/cfgrestore
-	echo "Downloading cfg repository..."
-        wget --timeout 15 --no-http-keep-alive --no-cache --no-cookies "https://github.com/Widge-5/sinden-barebones-configs/archive/refs/heads/main.zip"
-	wait
-	echo "Extracting config repository..."
-        unzip -q main.zip
-}
 
 
 function restoreOG(){
-        restoreOGbase
-	echo "Replacing configs..."
-	cd "/home/pi/cfgrestore/sinden-barebones-configs-main/opt/retropie/configs"
-	find . -name "*.cfg" | cpio -updm $location
-	echo "Cleaning up...."
-	cd /home/pi
-        rm -rf /home/pi/cfgrestore
-	echo "Done."
+  downloader "config repository..." "/home/pi/cfgrestore" "https://github.com/Widge-5/sinden-barebones-configs/archive/refs/heads/main.zip"
+  echo "Replacing configs..."
+  cd "/home/pi/cfgrestore/sinden-barebones-configs-main/opt/retropie/configs"
+  find . -name "*.cfg" | cpio -updm $location
+  tidyup "/home/pi/cfgrestore"
 }
 
 
+function trueratio(){
+  colourecho $_cQUERY "Would you like games that are natively 4:3 to be displayed in their correct ratio or stretched to fill the screen?"
+  colourecho $_cOPTIONS "[1] Correct ratio; or"
+  colourecho $_cOPTIONS "[2] Stretch to fill."
+  while true; do
+    read -N1 ratiochoice
+    case $ratiochoice in
+      1 )
+	echo " : Correct ratio"
+        cp -v $newcfgfolder"/3x4.cfg" "/opt/retropie/configs/all/retroarch/config/MAME/bombbee.cfg"
+        cp -v $newcfgfolder"/3x4.cfg" "/opt/retropie/configs/all/retroarch/config/MAME/cutieq.cfg"
+        cp -v $newcfgfolder"/3x4.cfg" "/opt/retropie/configs/all/retroarch/config/MAME/geebee.cfg"
+        cp -v $newcfgfolder"/3x4.cfg" "/opt/retropie/configs/all/retroarch/config/MAME/mmagic.cfg"
+        cp -v $newcfgfolder"/3x4.cfg" "/opt/retropie/configs/all/retroarch/config/MAME/bronx.cfg"
+        break
+      ;;
+      2 )
+	echo " : Stretch to fill"
+        break
+      ;;
+      * )
+        echo " : Invalid choice"
+      ;;
+    esac
+  done
+  colourecho $_cQUERY "Would you like Cybertank, which is natively 8:3 to be displayed in its correct ratio or stretched to fill the screen?"
+  colourecho $_cOPTIONS "[1] Correct ratio; or"
+  colourecho $_cOPTIONS "[2] Stretch to fill."
+  while true; do
+    read -N1 ratiochoice
+    case $ratiochoice in
+      1 )
+	echo " : Correct ratio"
+        cp -v $newcfgfolder"/8x3.cfg" "/opt/retropie/configs/all/retroarch/config/FinalBurn Neo/cybertnk.cfg"
+        break
+      ;;
+      2 )
+	echo " : Stretch to fill"
+        break
+      ;;
+      * )
+        echo " : Invalid choice"
+      ;;
+    esac
+  done
+  colourecho $_cQUERY "Would you like Razzmatazz, which is natively 7:8 to be displayed in its correct ratio or stretched to fill the screen?"
+  colourecho $_cOPTIONS "[1] Correct ratio; or"
+  colourecho $_cOPTIONS "[2] Stretch to fill."
+  while true; do
+    read -N1 ratiochoice
+    case $ratiochoice in
+      1 )
+	echo " : Correct ratio"
+        cp -v $newcfgfolder"/7x8.cfg" "/opt/retropie/configs/all/retroarch/config/MAME 2016/razmataz.cfg"
+        break
+      ;;
+      2 )
+	echo " : Stretch to fill"
+        break
+      ;;
+      * )
+        echo " : Invalid choice"
+      ;;
+    esac
+  done
+  colourecho $_cQUERY "Would you like the Tic-80 system, which is natively 16:9 to be displayed in its correct ratio or stretched to fill the screen?"
+  colourecho $_cOPTIONS "[1] Correct ratio; or"
+  colourecho $_cOPTIONS "[2] Stretch to fill."
+  while true; do
+    read -N1 ratiochoice
+    case $ratiochoice in
+      1 )
+	echo " : Correct ratio"
+        cp -v $newcfgfolder"/tic80.cfg" "/opt/retropie/configs/tic80/retroarch.cfg"
+        break
+      ;;
+      2 )
+	echo " : Stretch to fill"
+        break
+      ;;
+      * )
+        echo " : Invalid choice"
+      ;;
+    esac
+  done
+}
 
+
+function gollyghost43() {
+  cd "/home/pi/srfoverlays/Sinden_BB_screenratio-main/GGBT"
+  colourecho $_cQUERY "Would you like to remove the 16:9 scoreboard from Golly Ghost and Bubble Trouble, and apply calibrations for these games suited to a 4:3 display? (y/n)"
+  colourecho $_cQUERY "Make your selection"
+  read -N1 yn
+  case $yn in
+    y|Y )
+      echo " : Remove scoreboard"
+      cp -v gollygho.cfg.43 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/cfg/gollygho.cfg
+      cp -v nvram.gg43 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/nvram/gollygho/nvram
+      cp -v bubbletr.cfg.43 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/cfg/bubbletr.cfg
+      cp -v nvram.bt43 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/nvram/bubbletr/nvram
+    ;;
+    * )
+      echo " : Keep Scoreboard"
+      cp -v $newcfgfolder"/16x9.cfg" "/opt/retropie/configs/all/retroarch/config/MAME/gollygho.cfg"
+      cp -v $newcfgfolder"/16x9.cfg" "/opt/retropie/configs/all/retroarch/config/MAME/bubbletr.cfg"
+    ;;
+  esac
+  cd /home/pi
+}
 
 
 function replacerefs() {
@@ -186,36 +297,19 @@ function replacerefs() {
   newVPWref="$oldVPWref\""$viewportW"\""
   newVPHref="$oldVPHref\""$viewportH"\""
 
-  echo -e "Updating every overlay reference in retroarch with a reference to the overlay at: \033[0;33m"$newoverlay"\033[0m..."
+  echo -e "Updating the overlay reference in every game and folder cfg in RetroArch with a reference to the overlay at: \033[0;33m"$newoverlay"\033[0m..."
   find $location -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldoverlayref/c\\$newoverlayref"
   echo "Updating viewport settings..."
-  find $location -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPXref/c\\$newVPXref"
-  find $location -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPYref/c\\$newVPYref"
-  find $location -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPWref/c\\$newVPWref"
-  find $location -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPHref/c\\$newVPHref"
+  find $location"all/retroarch/config/" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPXref/c\\$newVPXref"
+  find $location"all/retroarch/config/" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPYref/c\\$newVPYref"
+  find $location"all/retroarch/config/" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPWref/c\\$newVPWref"
+  find $location"all/retroarch/config/" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPHref/c\\$newVPHref"
+  echo -e "Updating the overlay_enable reference in RetroArch's system and global cfgs to \"false\" (for non-lg games)"
+  find $location -maxdepth 2 -type f -name $filepattern -print0 | xargs -0 sed -i "/input_overlay_enable = /c\\input_overlay_enable = \"false\""
   echo "Done"
 }
 
-function gollyghost43() {
-  cd "/home/pi/srfoverlays/Sinden_BB_screenratio-main/GGBT"
-  colourecho $_cQUERY "Would you like to remove the 16:9 scoreboard from Golly Ghost and Bubble Trouble, and apply calibrations for these games suited to a 4:3 display? (y/n)"
-  read -N1 yn
-  case $yn in
-    y|Y )
-      echo " : Remove scoreboard"
-      cp -v gollygho.cfg.43 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/cfg/gollygho.cfg
-      cp -v nvram.gg43 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/nvram/gollygho/nvram
-      cp -v bubbletr.cfg.43 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/cfg/bubbletr.cfg
-      cp -v nvram.bt43 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/nvram/bubbletr/nvram
-    ;;
-    * )
-      echo " : Skip"
-    ;;
-  esac
-  echo "Cleaning up...."
-  cd /home/pi
-  rm -rf /home/pi/srfoverlays
-}
+
 
 
 function gollyghost169() {
@@ -225,9 +319,7 @@ function gollyghost169() {
   cp -v nvram.gg169 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/nvram/gollygho/nvram
   cp -v bubbletr.cfg.169 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/cfg/bubbletr.cfg
   cp -v nvram.bt169 /home/pi/RetroPie/roms/arcade/Lightgun_Games/mame/nvram/bubbletr/nvram
-  echo "Cleaning up...."
   cd /home/pi
-  rm -rf /home/pi/srfoverlays
 }
 
 
@@ -249,8 +341,9 @@ function main() {
             echo " : Replace"
             displaymodes2
             dloverlays
-            gollyghost43 
             replacerefs
+            gollyghost43
+            trueratio 
           ;;
           2 )
             echo " : Restore"
@@ -270,22 +363,22 @@ function main() {
         exit
       ;;
     esac
-  fi
-  chown -R pi:pi /opt/retropie/configs/
-  chown -R pi:pi /home/pi/
-  colourecho $_cQUERY "Process completed.  You should now reboot your Pi for the the changes to take effect."
-  colourecho $_cOPTIONS "Do you want to reboot now? (y/n)"
-  read -N1 yn
-  case $yn in
-    y|Y )
-      colourecho "cLRED" " : REBOOTING"
-      reboot
-    ;;
-    * )
-      colourecho "cLRED" " : Don't forget to reboot!"
-    ;;
-  esac
+    tidyup "/home/pi/srfoverlays"
+    chown -R pi:pi /opt/retropie/configs/
+    chown -R pi:pi /home/pi/
+    colourecho $_cQUERY "Process completed.  You should now reboot your Pi for the the changes to take effect."
+    colourecho $_cOPTIONS "Do you want to reboot now? (y/n)"
+    read -N1 yn
+    case $yn in
+      y|Y )
+        colourecho "cLRED" " : REBOOTING"
+        reboot
+      ;;
+      * )
+        colourecho "cLRED" " : Don't forget to reboot!"
+      ;;
+    esac
+    fi
 }
 
 main
-
