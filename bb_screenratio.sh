@@ -3,7 +3,7 @@
 ######################################################################################################
 ##
 ##  BB9 aspect ratio conversion - by Widge
-##  Version 1.03
+##  Version 1.04
 ##  January 2023
 ##
 ##  # TV modes #
@@ -87,7 +87,7 @@ function displaymodes () {
   choice=$(whiptail --title "$title" --menu "What display ratio do you want to convert to?" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT \
     "1" "| 16:9 . BB9 default, most common" \
     "2" "|  4:3 . Classic" \
-    "3" "|  5:4 . Typical for some Arcade1UP cabinets" \
+    "3" "|  5:4 . Typical for some Arcade1Up cabinets" \
     3>&1 1>&2 2>&3)
 
   case $choice in
@@ -97,6 +97,7 @@ function displaymodes () {
       displaymode="4"
       newoverlay=$overlay169
       viewportX="173"; viewportY="10"; viewportW="933"; viewportH="700"
+        massysX="143";                massysW="964"
       newcfgfolder="/home/pi/srfoverlays/Sinden_BB_screenratio-main/16x9"
       restorechoice=$(whiptail --title "$title" --menu \
         "\nYou have chosen the default Barebones aspect ratio of 16:9.\nWould you like to strip out all of the bezels and apply global viewport settings or restore the default BareBones config files that may have previously been stripped out?" \
@@ -111,6 +112,7 @@ function displaymodes () {
       displaymode="16"
       newoverlay=$overlay43
       viewportX="9"; viewportY="9"; viewportW="1006"; viewportH="750"
+        massysX="-24";                massysW="1071"
       newcfgfolder="/home/pi/srfoverlays/Sinden_BB_screenratio-main/4x3"
     ;;
     3 ) #5:4"
@@ -119,6 +121,7 @@ function displaymodes () {
       displaymode="35"
       newoverlay=$overlay54
       viewportX="12"; viewportY="41"; viewportW="1256"; viewportH="942"
+        massysX="-28";                  massysW="1339"
                        stretchY="12";                    stretchH="1000"
       newcfgfolder="/home/pi/srfoverlays/Sinden_BB_screenratio-main/5x4"
 
@@ -290,15 +293,18 @@ function replacerefs() {
   newVPWref="$oldVPWref\""$viewportW"\""
   newVPHref="$oldVPHref\""$viewportH"\""
 
-  echo -e "Updating the overlay reference in every game and folder cfg in RetroArch with a reference to the overlay at: \033[0;33m"$newoverlay"\033[0m..."
+  echo -e "Updating the overlay reference in every system, game and folder cfg in RetroArch with a reference to the overlay at: \033[0;33m"$newoverlay"\033[0m..."
   find $location -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldoverlayref/c\\$newoverlayref"
   echo "Updating viewport settings..."
-  find $location"all/" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPXref/c\\$newVPXref"
-  find $location"all/" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPYref/c\\$newVPYref"
-  find $location"all/" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPWref/c\\$newVPWref"
-  find $location"all/" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPHref/c\\$newVPHref"
+  find "$location" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPXref/c\\$newVPXref"
+  find "$location" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPYref/c\\$newVPYref"
+  find "$location" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPWref/c\\$newVPWref"
+  find "$location" -type f -name $filepattern -print0 | xargs -0 sed -i "/$oldVPHref/c\\$newVPHref"
+  echo -e "Fixing Master System X position and width"
+  sed -i -e "/$oldVPXref/c\\$oldVPXref\"$massysX\"" "/opt/retropie/configs/mastersystem/retroarch.cfg"
+  sed -i -e "/$oldVPWref/c\\$oldVPWref\"$massysW\"" "/opt/retropie/configs/mastersystem/retroarch.cfg"
   echo -e "Updating the overlay_enable reference in RetroArch's system and global cfgs to \"false\" (for non-lg games)"
-  find $location -maxdepth 2 -type f -name $filepattern -print0 | xargs -0 sed -i "/input_overlay_enable = /c\\input_overlay_enable = \"false\""
+  find "$location" -maxdepth 2 -type f -name $filepattern -print0 | xargs -0 sed -i "/input_overlay_enable = /c\\input_overlay_enable = \"false\""
   echo "Done"
 }
 
