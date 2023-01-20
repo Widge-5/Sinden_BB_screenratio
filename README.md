@@ -1,4 +1,4 @@
-# Aspect Ratio Adaptation Utility for Sinden BareBones (v 1.03)
+# Aspect Ratio Adaptation Utility for Sinden BareBones (v 1.04)
 Script for users of the BareBones (9) image to quickly and easily adapt the system for use on 4:3 or 5:4 displays.
 
 ## Reason
