@@ -22,7 +22,7 @@ location="/opt/retropie/configs/"
 filepattern="*.cfg"
 configtxt="/boot/config.txt"
 
-title="BareBones Screen Aspect Adaptation Utility (v1.02)"
+title="BareBones Screen Aspect Adaptation Utility (v1.04)"
 WT_HEIGHT=20
 WT_WIDTH=70
 WT_MENU_HEIGHT=5
