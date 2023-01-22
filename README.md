@@ -7,7 +7,9 @@ However, there are still those who would like to use the BareBones image on eith
 It is for these users that this script has been written.  Converting BareBones from 16:9 is no small undertaking if done manually due to the fact that most games have unique bezel overlays that would need to be replaced.
 
 ## How to use
-Always make a backup of your image before running a utiliy such as this one.  You do so at our own risk.  It is not possible to account for thy myriad changes and personalisations that users can make to their systems so please take precautions before you do so to ensure that you can revert back if the outcome is not to your satisfaction. 
+Always make a backup of your image before running a utiliy such as this one.  You do so at our own risk.  It is not possible to account for thy myriad changes and personalisations that users can make to their systems so please take precautions before you do so to ensure that you can revert back if the outcome is not to your satisfaction.
+
+**If you already have an older version of the script, you should delete it first. It will not be overwritten by the wget command below**
 
 If running from the Pi itself with a connected keyboard, press `F4` to exit EmulationStation and reach the command line.
 Or you can connect to your Pi via SSH using a reliable utility such as PuTTY.
