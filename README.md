@@ -38,3 +38,6 @@ It's possible that you may want to migrate the pi to a new 16:9 display at some 
 In most cases the script can be run again to restore the image back to its original state by choosing the option for 16:9 displays and then choosing to replace the configs with those from the BB9 github repo.
 The script will then replace the files previously changed with those from the github repo.  Be mindful that if you have made some other changes or personalisations they may or may not be affected by the restoration.  The script will restore all of retroarch's game and folder `.cfg` files and the global and system-specific `retroarch.cfg` files (and only these) as these are the files that would have been changed by the first alteration process.
 
+## Watch the YouTube video demo:
+Click the image to play the video.
+[![Watch the video](https://img.youtube.com/vi/nP4XE7SBvWA/maxresdefault.jpg)](https://youtu.be/nP4XE7SBvWA)
